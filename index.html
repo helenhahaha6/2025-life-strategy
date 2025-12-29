@@ -309,12 +309,12 @@
                     <div class="space-y-5 h-[400px] overflow-y-auto pr-2">
                         <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-chart-line w-6"></i> 關鍵數據 (Metrics)</label>
-                            <textarea id="input-metrics" rows="3" placeholder="有哪些具體的數字可以證明你的努力？"
+                            <textarea id="input-metrics" rows="3" placeholder="想用哪些具體的數字紀念你的努力？"
                                 class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.metrics}</textarea>
                         </div>
                         <div class="space-y-2">
-                            <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-trophy w-6"></i> 高光時刻 (Highlights)</label>
-                            <textarea id="input-highlights" rows="3" placeholder="今年讓你覺得『我真棒』的三個瞬間是什麼？（不一定要很大，微小的勝利也算）"
+                            <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-trophy w-6"></i> 英雄時刻 (Highlights)</label>
+                            <textarea id="input-highlights" rows="3" placeholder="今年讓你覺得『我真棒』的三個瞬間是什麼？"
                                 class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.highlights}</textarea>
                         </div>
                          <div class="space-y-2">
@@ -397,7 +397,7 @@
                             <i class="fa-regular fa-copy mr-2"></i> 複製指令
                         </button>
                     </div>
-                    <p class="text-center text-xs text-stone-400 mt-4">請複製上方指令，發送給 ChatGPT 或 Claude。</p>
+                    <p class="text-center text-xs text-stone-400 mt-4">請複製上方指令，貼到你常用的AI（Gemini,ChatGPT,Claude）。</p>
                 `;
                 setTimeout(() => {
                     const btn = div.querySelector('#btn-copy');

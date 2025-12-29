@@ -78,7 +78,6 @@
     </div>
 
     <script>
-        // 確保 DOM 載入後才執行，防止空白頁面
         document.addEventListener('DOMContentLoaded', () => {
 
             // --- Data State ---
@@ -88,7 +87,7 @@
                     name: '',
                     date: new Date().toISOString().split('T')[0],
                     keyword: '',
-                    scores: [5, 5, 5, 5, 5], // Career, Health, Rel, Wealth, Self
+                    scores: [5, 5, 5, 5, 5],
                     q1: '', q2: '', q3: '', q4: '',
                     roles: [
                         {name: '', review: ''},
@@ -143,7 +142,6 @@
             // --- Event Listeners ---
             btnNext.addEventListener('click', () => {
                 if (state.step < steps.length - 1) {
-                    saveCurrentStepData();
                     state.step++;
                     renderStep();
                 }
@@ -151,7 +149,6 @@
 
             btnPrev.addEventListener('click', () => {
                 if (state.step > 0) {
-                    saveCurrentStepData();
                     state.step--;
                     renderStep();
                 }
@@ -159,15 +156,13 @@
 
             // --- Render Functions ---
             function renderStep() {
-                // Update Progress
                 const progress = ((state.step + 1) / steps.length) * 100;
                 progressBar.style.width = `${progress}%`;
                 stepIndicator.textContent = state.step + 1;
 
-                // Update Buttons
                 btnPrev.classList.toggle('hidden', state.step === 0);
                 if (state.step === steps.length - 1) {
-                    btnNext.classList.add('hidden'); // Hide Next on result page
+                    btnNext.classList.add('hidden');
                 } else {
                     btnNext.classList.remove('hidden');
                     btnNext.innerHTML = state.step === steps.length - 2 ? 
@@ -175,12 +170,10 @@
                         '下一步 <i class="fa-solid fa-arrow-right ml-2"></i>';
                 }
 
-                // Render Content
                 container.innerHTML = '';
                 const content = steps[state.step].render();
                 container.appendChild(content);
                 
-                // Post-render actions (charts, animations)
                 if (state.step === 0) initRadarChart();
             }
 
@@ -215,7 +208,6 @@
                     </div>
                 `;
                 
-                // Slider Logic
                 setTimeout(() => {
                     const sliders = div.querySelectorAll('.range-slider');
                     sliders.forEach(slider => {
@@ -271,8 +263,6 @@
             function renderStep3() {
                 const div = document.createElement('div');
                 div.className = 'slide-in-right space-y-6';
-                
-                // 統一的引導提問
                 const commonReviewPlaceholder = "在這個角色裡，最有成就感的時刻是什麼？遇到的最大挑戰又是什麼？";
 
                 div.innerHTML = `
@@ -282,14 +272,14 @@
                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors mt-2">
                             <div class="absolute -top-3 left-4 bg-amber-600 text-white text-xs px-2 py-0.5 rounded font-serif shadow-sm">主要角色</div>
                             <input type="text" id="r1-name" value="${state.data.roles[0].name}" placeholder="輸入角色名稱" 
-                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 mt-2 placeholder-stone-400">
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 mt-5 placeholder-stone-400">
                             <textarea id="r1-review" rows="3" placeholder="${commonReviewPlaceholder}"
                                 class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400 leading-relaxed">${state.data.roles[0].review}</textarea>
                         </div>
-                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors mt-4">
+                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors mt-6">
                             <div class="absolute -top-3 left-4 bg-stone-500 text-white text-xs px-2 py-0.5 rounded font-serif shadow-sm">次要角色</div>
                             <input type="text" id="r2-name" value="${state.data.roles[1].name}" placeholder="輸入角色名稱" 
-                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 mt-2 placeholder-stone-400">
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 mt-5 placeholder-stone-400">
                             <textarea id="r2-review" rows="3" placeholder="${commonReviewPlaceholder}"
                                 class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400 leading-relaxed">${state.data.roles[1].review}</textarea>
                         </div>
@@ -317,19 +307,16 @@
                 div.innerHTML = `
                     <h2 class="text-2xl font-bold text-stone-800 text-center mb-6">拾起與放下</h2>
                     <div class="space-y-5 h-[400px] overflow-y-auto pr-2">
-                        
                         <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-chart-line w-6"></i> 關鍵數據 (Metrics)</label>
                             <textarea id="input-metrics" rows="3" placeholder="有哪些具體的數字可以證明你的努力？（例如：專案數量、營收金額、粉絲增長...）"
                                 class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.metrics}</textarea>
                         </div>
-
                         <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-trophy w-6"></i> 高光時刻 (Highlights)</label>
                             <textarea id="input-highlights" rows="3" placeholder="今年讓你覺得『我真棒』的三個瞬間是什麼？（不一定要很大，微小的勝利也算）"
                                 class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.highlights}</textarea>
                         </div>
-
                          <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-gem w-6"></i> 隱形資產 (Assets)</label>
                             <textarea id="input-assets" rows="3" placeholder="今年你獲得了什麼『帶得走』的東西？（例如：新技能、好習慣、人脈、或是心態的轉變...）"
@@ -337,7 +324,6 @@
                         </div>
                     </div>
                 `;
-                
                 setTimeout(() => {
                     div.querySelector('#input-metrics').addEventListener('input', (e) => state.data.metrics = e.target.value);
                     div.querySelector('#input-highlights').addEventListener('input', (e) => state.data.highlights = e.target.value);
@@ -358,7 +344,6 @@
                         <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-4xl text-stone-200 pointer-events-none"></i>
                     </div>
                 `;
-                
                 setTimeout(() => {
                     div.querySelector('#input-vision').addEventListener('input', (e) => state.data.vision = e.target.value);
                 }, 0);
@@ -368,19 +353,14 @@
             function renderStep6() {
                 const div = document.createElement('div');
                 div.className = 'flex flex-col items-center justify-center h-full slide-in-right';
-                
-                // Random card selection
                 if (!state.data.card.en) {
                     const randomCard = cardDeck[Math.floor(Math.random() * cardDeck.length)];
                     state.data.card = randomCard;
                 }
-
                 div.innerHTML = `
                     <h2 class="text-2xl font-bold text-stone-800 mb-8">抽取 2026 戰略錦囊</h2>
-                    
                     <div class="group perspective-1000 w-64 h-96 cursor-pointer" onclick="this.classList.toggle('flipped'); document.getElementById('reveal-btn').classList.remove('opacity-0', 'pointer-events-none');">
                         <div class="relative w-full h-full text-center transition-transform duration-700 transform-style-3d shadow-2xl rounded-xl">
-                            
                             <div class="absolute w-full h-full bg-white border-2 border-amber-600/30 rounded-xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]">
                                 <div class="text-amber-800 text-sm tracking-widest uppercase mb-2 font-serif">Archetype</div>
                                 <h3 class="text-3xl font-bold text-stone-900 font-serif mb-1">${state.data.card.en}</h3>
@@ -389,7 +369,6 @@
                                 <p class="text-stone-800 font-serif italic leading-relaxed">"${state.data.card.msg}"</p>
                                 <div class="absolute bottom-4 text-[10px] text-stone-400">2026 Strategic Theme</div>
                             </div>
-
                             <div class="absolute w-full h-full bg-stone-800 rounded-xl backface-hidden flex items-center justify-center border-4 border-stone-700">
                                 <div class="border-2 border-amber-600/50 w-[90%] h-[90%] rounded-lg flex items-center justify-center">
                                     <i class="fa-solid fa-compass text-6xl text-amber-600/80"></i>
@@ -397,19 +376,12 @@
                             </div>
                         </div>
                     </div>
-
                     <div id="reveal-btn" class="mt-10 opacity-0 pointer-events-none transition-opacity duration-500 text-stone-500 text-sm text-center">
                         <p class="mb-2">已獲得戰略關鍵字</p>
                         <p class="text-xs text-stone-400">點擊右下角按鈕生成報告</p>
                     </div>
-
-                    <style>
-                        .flipped .transform-style-3d {
-                            transform: rotateY(180deg);
-                        }
-                    </style>
+                    <style>.flipped .transform-style-3d { transform: rotateY(180deg); }</style>
                 `;
-
                 return div;
             }
 
@@ -420,16 +392,13 @@
                 div.innerHTML = `
                     <h2 class="text-2xl font-bold text-stone-800 text-center mb-4">你的年度戰略書已就緒</h2>
                     <div class="flex-1 relative bg-stone-900 rounded-lg p-4 overflow-hidden group">
-                        <textarea id="final-prompt" readonly 
-                            class="w-full h-full bg-transparent text-stone-300 font-mono text-xs md:text-sm resize-none focus:outline-none custom-scrollbar">${prompt}</textarea>
-                        
+                        <textarea id="final-prompt" readonly class="w-full h-full bg-transparent text-stone-300 font-mono text-xs md:text-sm resize-none focus:outline-none custom-scrollbar">${prompt}</textarea>
                         <button id="btn-copy" class="absolute top-4 right-4 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded shadow flex items-center transition-all">
                             <i class="fa-regular fa-copy mr-2"></i> 複製指令
                         </button>
                     </div>
                     <p class="text-center text-xs text-stone-400 mt-4">請複製上方指令，發送給 ChatGPT 或 Claude。</p>
                 `;
-                
                 setTimeout(() => {
                     const btn = div.querySelector('#btn-copy');
                     btn.addEventListener('click', () => {
@@ -449,16 +418,10 @@
             }
 
             // --- Helpers ---
-            
             function initRadarChart() {
                 const ctx = document.getElementById('radarChart');
                 if(!ctx) return;
-                
-                // Destroy old instance if exists to prevent glitch
-                if(radarChart instanceof Chart) {
-                    radarChart.destroy();
-                }
-
+                if(radarChart instanceof Chart) radarChart.destroy();
                 radarChart = new Chart(ctx, {
                     type: 'radar',
                     data: {
@@ -466,7 +429,7 @@
                         datasets: [{
                             label: '2025 能量',
                             data: [...state.data.scores],
-                            backgroundColor: 'rgba(217, 119, 6, 0.2)', // amber-600
+                            backgroundColor: 'rgba(217, 119, 6, 0.2)',
                             borderColor: '#d97706',
                             pointBackgroundColor: '#d97706',
                             borderWidth: 2
@@ -477,13 +440,8 @@
                         maintainAspectRatio: false,
                         scales: {
                             r: {
-                                min: 0,
-                                max: 10,
-                                ticks: { display: false },
-                                pointLabels: {
-                                    font: { family: "'Noto Serif TC', serif", size: 12 },
-                                    color: '#57534e'
-                                }
+                                min: 0, max: 10, ticks: { display: false },
+                                pointLabels: { font: { family: "'Noto Serif TC', serif", size: 12 }, color: '#57534e' }
                             }
                         },
                         plugins: { legend: { display: false } }
@@ -498,77 +456,11 @@
                 }
             }
 
-            function saveCurrentStepData() {
-                // Input listeners handle most data, this is just a safety hook
-            }
-
             function generatePrompt() {
-                return `# Role
-你是一位溫暖、富有洞見的人生戰略顧問與年度覆盤專家。
-
-# Task
-請根據我填寫的 **【2025 年度覆盤】** 以及我抽到的 **【2026 戰略關鍵字：${state.data.card.cn}】**，為我撰寫一份深度年度總結報告。
-請使用 **繁體中文**，語氣專業、清晰且激勵人心。
-
----
-# Context (使用者數據)
-**1. 能量定調：**
-* 年度關鍵字：${state.data.keyword}
-* 五維度評分：事業(${state.data.scores[0]}) / 身心(${state.data.scores[1]}) / 關係(${state.data.scores[2]}) / 財務(${state.data.scores[3]}) / 自我(${state.data.scores[4]})
-
-**2. 2025 四季回放：**
-* Q1: ${state.data.q1}
-* Q2: ${state.data.q2}
-* Q3: ${state.data.q3}
-* Q4: ${state.data.q4}
-
-**3. 人生角色檢視：**
-* 角色1 (${state.data.roles[0].name}): ${state.data.roles[0].review}
-* 角色2 (${state.data.roles[1].name}): ${state.data.roles[1].review}
-* 角色3 (${state.data.roles[2].name}): ${state.data.roles[2].review}
-
-**4. 深度盤點：**
-* 關鍵數據: ${state.data.metrics}
-* 高光時刻: ${state.data.highlights}
-* 隱形資產: ${state.data.assets}
-
-**5. 未來願景：**
-${state.data.vision}
-
-**6. ✨ 2026 戰略關鍵字：**
-* **${state.data.card.cn} (${state.data.card.en})**
-* 行動準則：${state.data.card.msg}
-
----
-# Output Structure (請依照此架構產出)
-
-## 1. 🦋 2025 年度總結
-* **年度定調：** 結合關鍵字與五維度評分，分析今年的整體基調。
-
-## 2. 🏆 高光與數據分析
-* **成就是如何發生的：** 分析高光時刻與數據背後的關鍵行動。
-* **角色成長：** 針對不同角色(${state.data.roles[0].name}...)的轉變進行點評。
-
-## 3. 🧩 隱形資產盤點
-* **內在累積：** 分析那些無法被量化，但對未來至關重要的經驗與心態。
-
-## 4. 💌 2026 戰略規劃
-* **給未來的信：** 結合願景寫一段話。
-* **關鍵字戰略解讀：** 請針對我抽到的「${state.data.card.cn}」，結合我的願景，提供 **3 個具體的行動建議**。告訴我明年若要實踐這個關鍵字，我應該專注什麼？或避免什麼？
-
-## 5. 🎨 AI 視覺化指令 (Bonus)
-請生成兩組 **英文** Image Prompts，並附上中文設計思路。
-**重要提示：** 請指示繪圖 AI 盡量使用圖像、圖標和抽象元素來表達資訊，**避免在圖中渲染複雜的文字或數據標籤**，以免產生亂碼。
-
-* **[Prompt 1: 2025 年度全景資訊圖表]**: 
-    * 設計思路：請設計一張雜誌風格的資訊圖表，用視覺化的方式呈現 Q1-Q4 的流動、關鍵數據的亮點，以及雷達圖的能量分佈。重點是整體的視覺美感與結構。
-    * 風格：Editorial layout, clean data visualization using icons and abstract shapes, minimal text, warm earth tones.
-* **[Prompt 2: 2026 願景拼貼]**: 
-    * 設計思路：將我的願景畫面與「${state.data.card.en}」的象徵元素結合，設計一張激勵人心的電腦桌布。
-    * 風格：Desktop wallpaper, mood board style, aesthetic and inspiring, photorealistic elements.`;
+                return `# Role\n你是一位溫暖、富有洞見的人生戰略顧問與年度覆盤專家。\n\n# Task\n請根據我填寫的 **【2025 年度覆盤】** 以及我抽到的 **【2026 戰略關鍵字：${state.data.card.cn}】**，為我撰寫一份深度年度總結報告。\n請使用 **繁體中文**，語氣專業、清晰且激勵人心。\n\n---\n# Context (使用者數據)\n**1. 能量定調：**\n* 年度關鍵字：${state.data.keyword}\n* 五維度評分：事業(${state.data.scores[0]}) / 身心(${state.data.scores[1]}) / 關係(${state.data.scores[2]}) / 財務(${state.data.scores[3]}) / 自我(${state.data.scores[4]})\n\n**2. 2025 四季回放：**\n* Q1: ${state.data.q1}\n* Q2: ${state.data.q2}\n* Q3: ${state.data.q3}\n* Q4: ${state.data.q4}\n\n**3. 人生角色檢視：**\n* 角色1 (${state.data.roles[0].name}): ${state.data.roles[0].review}\n* 角色2 (${state.data.roles[1].name}): ${state.data.roles[1].review}\n* 角色3 (${state.data.roles[2].name}): ${state.data.roles[2].review}\n\n**4. 深度盤點：**\n* 關鍵數據: ${state.data.metrics}\n* 高光時刻: ${state.data.highlights}\n* 隱形資產: ${state.data.assets}\n\n**5. 未來願景：**\n${state.data.vision}\n\n**6. ✨ 2026 戰略關鍵字：**\n* **${state.data.card.cn} (${state.data.card.en})**\n* 行動準則：${state.data.card.msg}\n\n---\n# Output Structure (請依照此架構產出)\n\n## 1. 🦋 2025 年度總結\n* **年度定調：** 結合關鍵字與五維度評分，分析今年的整體基調。\n\n## 2. 🏆 高光與數據分析\n* **成就是如何發生的：** 分析高光時刻與數據背後的關鍵行動。\n* **角色成長：** 針對不同角色(${state.data.roles[0].name}...)的轉變進行點評。\n\n## 3. 🧩 隱形資產盤點\n* **內在累積：** 分析那些無法被量化，但對未來至關重要的經驗與心態。\n\n## 4. 💌 2026 戰略規劃\n* **給未來的信：** 結合願景寫一段話。\n* **關鍵字戰略解讀：** 請針對我抽到的「${state.data.card.cn}」，結合我的願景，提供 **3 個具體的行動建議**。告訴我明年若要實踐這個關鍵字，我應該專注什麼？或避免什麼？\n\n## 5. 🎨 AI 視覺化指令 (Bonus)\n請生成兩組 **英文** Image Prompts，並附上中文設計思路。\n**重要提示：** 請指示繪圖 AI 盡量使用圖像、圖標和抽象元素來表達資訊，**避免在圖中渲染複雜的文字或數據標籤**，以免產生亂碼。\n\n* **[Prompt 1: 2025 年度全景資訊圖表]**:\n    * 設計思路：請設計一張雜誌風格的資訊圖表，用視覺化的方式呈現 Q1-Q4 的流動、關鍵數據的亮點，以及雷達圖的能量分佈。重點是整體的視覺美感與結構。\n    * 風格：Editorial layout, clean data visualization using icons and abstract shapes, minimal text, warm earth tones.\n* **[Prompt 2: 2026 願景拼貼]**:\n    * 設計思路：將我的願景畫面與「${state.data.card.en}」的象徵元素結合，設計一張激勵人心的電腦桌布。\n    * 風格：Desktop wallpaper, mood board style, aesthetic and inspiring, photorealistic elements.`;
             }
 
-        }); // End of DOMContentLoaded
+        });
     </script>
 </body>
 </html>

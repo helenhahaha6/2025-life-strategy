@@ -1,102 +1,570 @@
-
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2025 AI 年度復盤生成器</title>
+    <title>2025 年度復盤生成器</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        serif: ['"Noto Serif TC"', '"Playfair Display"', 'serif'],
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        stone: {
-                            50: '#f8f5f2',
-                            100: '#f2ece4',
-                            800: '#2d2a26',
-                        },
-                        amber: {
-                            700: '#b45309',
-                            800: '#92400e',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <style>
         body {
-            background-color: #f8f5f2;
-            color: #2d2a26;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fafaf9; /* stone-50 */
+            color: #292524; /* stone-800 */
         }
-        .paper-texture {
-            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        h1, h2, h3, .serif {
+            font-family: 'Noto Serif TC', serif;
         }
-        .step-transition {
-            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+        .en-serif {
+            font-family: 'Playfair Display', serif;
         }
-        /* Custom range slider styling */
-        input[type=range] {
-            accent-color: #b45309;
+        /* Custom Scrollbar */
+        textarea::-webkit-scrollbar {
+            width: 8px;
         }
-        /* Card Flip animation */
-        .card-container {
+        textarea::-webkit-scrollbar-track {
+            background: #f5f5f4; 
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background-color: #d6d3d1; 
+            border-radius: 4px;
+        }
+        /* Card Flip Animation */
+        .perspective-1000 {
             perspective: 1000px;
         }
-        .card-inner {
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        .transform-style-3d {
             transform-style: preserve-3d;
-            height: 100%;
-            width: 100%;
         }
-        .card-inner.is-flipped {
-            transform: rotateY(180deg);
-        }
-        .card-front, .card-back {
+        .backface-hidden {
             backface-visibility: hidden;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border-radius: 1rem;
         }
-        .card-back {
+        .rotate-y-180 {
             transform: rotateY(180deg);
         }
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 6px;
+        .slide-in-right {
+            animation: slideInRight 0.5s ease-out forwards;
         }
-        ::-webkit-scrollbar-track {
-            background: #f8f5f2;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d6d3d1;
-            border-radius: 10px;
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
 </head>
-<body class="font-sans selection:bg-amber-100 paper-texture">
-    <div id="root"></div>
-    <script type="module" src="index.tsx"></script>
-<script type="module" src="/index.tsx"></script>
+<body class="bg-stone-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-xl overflow-hidden border border-stone-100 relative min-h-[600px] flex flex-col">
+        
+        <div class="w-full h-1 bg-stone-100">
+            <div id="progress-bar" class="h-full bg-amber-600 transition-all duration-500" style="width: 14%;"></div>
+        </div>
+
+        <div id="step-container" class="flex-1 p-6 md:p-10 relative">
+            </div>
+
+        <div class="p-6 border-t border-stone-100 flex justify-between bg-stone-50 items-center">
+            <button id="btn-prev" class="text-stone-500 hover:text-stone-800 font-serif hidden">
+                <i class="fa-solid fa-arrow-left mr-2"></i> 上一步
+            </button>
+            <div class="text-xs text-stone-400 font-serif tracking-widest">STEP <span id="step-indicator">1</span>/7</div>
+            <button id="btn-next" class="bg-stone-800 text-stone-50 hover:bg-amber-700 px-6 py-2 rounded shadow transition-colors font-serif">
+                下一步 <i class="fa-solid fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // 確保 DOM 載入後才執行，防止空白頁面
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- Data State ---
+            const state = {
+                step: 0,
+                data: {
+                    name: '',
+                    date: new Date().toISOString().split('T')[0],
+                    keyword: '',
+                    scores: [5, 5, 5, 5, 5], // Career, Health, Rel, Wealth, Self
+                    q1: '', q2: '', q3: '', q4: '',
+                    roles: [
+                        {name: '', review: ''},
+                        {name: '', review: ''},
+                        {name: '', review: ''}
+                    ],
+                    metrics: '',
+                    highlights: '',
+                    assets: '',
+                    vision: '',
+                    card: { en: '', cn: '', msg: '' }
+                }
+            };
+
+            // --- Config ---
+            const steps = [
+                { id: 'step-1', title: '能量定調', render: renderStep1 },
+                { id: 'step-2', title: '四季回放', render: renderStep2 },
+                { id: 'step-3', title: '多重宇宙', render: renderStep3 },
+                { id: 'step-4', title: '深度盤點', render: renderStep4 },
+                { id: 'step-5', title: '凝視 2026', render: renderStep5 },
+                { id: 'step-6', title: '戰略錦囊', render: renderStep6 },
+                { id: 'step-7', title: '生成結果', render: renderStep7 }
+            ];
+
+            const cardDeck = [
+                { en: "The Explorer", cn: "探索者", msg: "保持好奇，勇敢踏入未知領域。" },
+                { en: "The Alchemist", cn: "鍊金術師", msg: "整合現有資源，轉化為最大價值。" },
+                { en: "The Listener", cn: "傾聽者", msg: "靜下心來，答案往往在細節裡。" },
+                { en: "The Cultivator", cn: "耕耘者", msg: "持續投入，耐心等待複利效應。" },
+                { en: "The Architect", cn: "架構師", msg: "建立系統與秩序，穩健構建未來。" },
+                { en: "The Voyager", cn: "遠航者", msg: "鎖定目標，展現強大的執行力。" },
+                { en: "The Resilient", cn: "韌性者", msg: "以柔克剛，適應變化並從中反彈。" },
+                { en: "The Thinker", cn: "沉思者", msg: "深度思考，釐清事物的本質。" },
+                { en: "The Navigator", cn: "舵手", msg: "順應時勢，在變動中靈活調整方向。" },
+                { en: "The Healer", cn: "修復者", msg: "調整狀態，讓身心回到最佳平衡。" },
+                { en: "The Radiance", cn: "發光者", msg: "建立個人品牌，自信展現影響力。" },
+                { en: "The Integrator", cn: "整合者", msg: "歸納經驗，將散落的點連成線。" }
+            ];
+
+            // --- DOM Elements ---
+            const container = document.getElementById('step-container');
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            const progressBar = document.getElementById('progress-bar');
+            const stepIndicator = document.getElementById('step-indicator');
+            let radarChart = null;
+
+            // --- Initialization ---
+            renderStep();
+
+            // --- Event Listeners ---
+            btnNext.addEventListener('click', () => {
+                if (state.step < steps.length - 1) {
+                    saveCurrentStepData();
+                    state.step++;
+                    renderStep();
+                }
+            });
+
+            btnPrev.addEventListener('click', () => {
+                if (state.step > 0) {
+                    saveCurrentStepData();
+                    state.step--;
+                    renderStep();
+                }
+            });
+
+            // --- Render Functions ---
+            function renderStep() {
+                // Update Progress
+                const progress = ((state.step + 1) / steps.length) * 100;
+                progressBar.style.width = `${progress}%`;
+                stepIndicator.textContent = state.step + 1;
+
+                // Update Buttons
+                btnPrev.classList.toggle('hidden', state.step === 0);
+                if (state.step === steps.length - 1) {
+                    btnNext.classList.add('hidden'); // Hide Next on result page
+                } else {
+                    btnNext.classList.remove('hidden');
+                    btnNext.innerHTML = state.step === steps.length - 2 ? 
+                        '生成戰略書 <i class="fa-solid fa-wand-magic-sparkles ml-2"></i>' : 
+                        '下一步 <i class="fa-solid fa-arrow-right ml-2"></i>';
+                }
+
+                // Render Content
+                container.innerHTML = '';
+                const content = steps[state.step].render();
+                container.appendChild(content);
+                
+                // Post-render actions (charts, animations)
+                if (state.step === 0) initRadarChart();
+            }
+
+            // --- Step Renderers ---
+
+            function renderStep1() {
+                const div = document.createElement('div');
+                div.className = 'slide-in-right space-y-6';
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 text-center mb-6">2025 能量地圖</h2>
+                    <div class="relative h-64 w-full flex justify-center items-center mb-6">
+                        <canvas id="radarChart"></canvas>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        ${['事業成就', '身心健康', '人際關係', '財務豐盛', '自我實現'].map((label, idx) => `
+                            <div class="flex items-center space-x-4">
+                                <span class="w-20 text-sm font-serif text-stone-600">${label}</span>
+                                <input type="range" min="1" max="10" value="${state.data.scores[idx]}" 
+                                    class="flex-1 h-2 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-amber-600 range-slider"
+                                    data-index="${idx}">
+                                <span class="w-6 text-right font-mono text-amber-700 font-bold score-display">${state.data.scores[idx]}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <div class="mt-8">
+                        <label class="block text-sm font-serif text-stone-500 mb-2">年度關鍵字</label>
+                        <input type="text" id="input-keyword" value="${state.data.keyword}" 
+                            placeholder="如果用一個詞形容這一年，那會是什麼？"
+                            class="w-full border-b-2 border-stone-200 bg-transparent py-2 px-1 focus:outline-none focus:border-amber-600 font-serif text-lg text-stone-800 placeholder-stone-400 transition-colors">
+                    </div>
+                `;
+                
+                // Slider Logic
+                setTimeout(() => {
+                    const sliders = div.querySelectorAll('.range-slider');
+                    sliders.forEach(slider => {
+                        slider.addEventListener('input', (e) => {
+                            const idx = e.target.dataset.index;
+                            const val = parseInt(e.target.value);
+                            state.data.scores[idx] = val;
+                            e.target.nextElementSibling.textContent = val;
+                            updateRadarChart();
+                        });
+                    });
+                    
+                    div.querySelector('#input-keyword').addEventListener('input', (e) => {
+                        state.data.keyword = e.target.value;
+                    });
+                }, 0);
+
+                return div;
+            }
+
+            function renderStep2() {
+                const div = document.createElement('div');
+                div.className = 'slide-in-right space-y-6';
+                const qs = [
+                    { k: 'q1', t: 'Q1 春 (1-3月)', p: '春天時，你的重心放在哪裡？是否有新的開始、目標設定，或是意料之外的驚喜？' },
+                    { k: 'q2', t: 'Q2 夏 (4-6月)', p: '夏天時，遇到了什麼挑戰或轉折？是否有全力衝刺、感到疲憊，或做出調整的時刻？' },
+                    { k: 'q3', t: 'Q3 秋 (7-9月)', p: '秋天時，有什麼收穫或變動？是否去旅行、學習新技能，或是心境有了轉換？' },
+                    { k: 'q4', t: 'Q4 冬 (10-12月)', p: '冬天時，你是如何收尾的？做了什麼重要決定，或是對明年有了什麼新的想法？' }
+                ];
+                
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 text-center mb-2">2025 四季回放</h2>
+                    <p class="text-center text-stone-500 text-sm mb-6 italic">閉上眼回想，這一年四季的軌跡...</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-[400px] overflow-y-auto">
+                        ${qs.map(q => `
+                            <div class="bg-stone-50 p-3 rounded-lg border border-stone-100">
+                                <label class="block text-amber-800 font-bold mb-2 font-serif">${q.t}</label>
+                                <textarea id="input-${q.k}" rows="4" placeholder="${q.p}"
+                                    class="w-full bg-transparent resize-none focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data[q.k]}</textarea>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    qs.forEach(q => {
+                        div.querySelector(`#input-${q.k}`).addEventListener('input', (e) => state.data[q.k] = e.target.value);
+                    });
+                }, 0);
+                return div;
+            }
+
+            function renderStep3() {
+                const div = document.createElement('div');
+                div.className = 'slide-in-right space-y-6';
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 text-center mb-2">多重宇宙的你</h2>
+                    <p class="text-center text-stone-500 text-sm mb-6 italic">我們同時扮演著不同角色，請與它們對話。</p>
+                    <div class="space-y-6 h-[400px] overflow-y-auto pr-2">
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors">
+                            <div class="absolute -top-3 left-4 bg-amber-600 text-white text-xs px-2 py-0.5 rounded font-serif">主要角色</div>
+                            <input type="text" id="r1-name" value="${state.data.roles[0].name}" placeholder="角色名稱 (如: 專案經理)" 
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 placeholder-stone-400">
+                            <textarea id="r1-review" rows="3" placeholder="最有成就感的是什麼？最消耗你的又是什麼？"
+                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400">${state.data.roles[0].review}</textarea>
+                        </div>
+                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors">
+                            <div class="absolute -top-3 left-4 bg-stone-500 text-white text-xs px-2 py-0.5 rounded font-serif">次要角色</div>
+                            <input type="text" id="r2-name" value="${state.data.roles[1].name}" placeholder="角色名稱 (如: 伴侶/女兒)" 
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 placeholder-stone-400">
+                            <textarea id="r2-review" rows="3" placeholder="這個角色帶給你什麼成長？學到了什麼課題？"
+                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400">${state.data.roles[1].review}</textarea>
+                        </div>
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors">
+                            <input type="text" id="r3-name" value="${state.data.roles[2].name}" placeholder="其他角色 (選填)" 
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 placeholder-stone-400">
+                            <textarea id="r3-review" rows="2" placeholder="簡短回顧..."
+                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400">${state.data.roles[2].review}</textarea>
+                        </div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    ['r1', 'r2', 'r3'].forEach((p, i) => {
+                        div.querySelector(`#${p}-name`).addEventListener('input', (e) => state.data.roles[i].name = e.target.value);
+                        div.querySelector(`#${p}-review`).addEventListener('input', (e) => state.data.roles[i].review = e.target.value);
+                    });
+                }, 0);
+                return div;
+            }
+
+            function renderStep4() {
+                const div = document.createElement('div');
+                div.className = 'slide-in-right space-y-6';
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 text-center mb-6">拾起與放下</h2>
+                    <div class="space-y-5 h-[400px] overflow-y-auto pr-2">
+                        
+                        <div class="space-y-2">
+                            <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-chart-line w-6"></i> 關鍵數據 (Metrics)</label>
+                            <textarea id="input-metrics" rows="3" placeholder="具體數字證明你的努力 (如: 專案數、營收、粉絲增長...)"
+                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400">${state.data.metrics}</textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-trophy w-6"></i> 高光時刻 (Highlights)</label>
+                            <textarea id="input-highlights" rows="3" placeholder="今年讓你覺得『我真棒』的三個瞬間..."
+                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400">${state.data.highlights}</textarea>
+                        </div>
+
+                         <div class="space-y-2">
+                            <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-gem w-6"></i> 隱形資產 (Assets)</label>
+                            <textarea id="input-assets" rows="3" placeholder="獲得了什麼帶得走的東西？(技能、習慣、心態...)"
+                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400">${state.data.assets}</textarea>
+                        </div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    div.querySelector('#input-metrics').addEventListener('input', (e) => state.data.metrics = e.target.value);
+                    div.querySelector('#input-highlights').addEventListener('input', (e) => state.data.highlights = e.target.value);
+                    div.querySelector('#input-assets').addEventListener('input', (e) => state.data.assets = e.target.value);
+                }, 0);
+                return div;
+            }
+
+            function renderStep5() {
+                const div = document.createElement('div');
+                div.className = 'slide-in-right space-y-6';
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 text-center mb-2">凝視 2026</h2>
+                    <p class="text-center text-stone-500 text-sm mb-6 italic">想像現在是 2026 年底...</p>
+                    <div class="relative">
+                        <textarea id="input-vision" rows="12" placeholder="你身在何處？空氣中聞起來像什麼？你完成了哪些事？身邊有誰？請描述那個具體的畫面。"
+                            class="w-full p-6 bg-stone-50 rounded-lg border border-stone-100 focus:border-amber-300 focus:outline-none text-base text-stone-700 leading-loose placeholder-stone-400 font-serif">${state.data.vision}</textarea>
+                        <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-4xl text-stone-200 pointer-events-none"></i>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    div.querySelector('#input-vision').addEventListener('input', (e) => state.data.vision = e.target.value);
+                }, 0);
+                return div;
+            }
+
+            function renderStep6() {
+                const div = document.createElement('div');
+                div.className = 'flex flex-col items-center justify-center h-full slide-in-right';
+                
+                // Random card selection
+                if (!state.data.card.en) {
+                    const randomCard = cardDeck[Math.floor(Math.random() * cardDeck.length)];
+                    state.data.card = randomCard;
+                }
+
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 mb-8">抽取 2026 戰略錦囊</h2>
+                    
+                    <div class="group perspective-1000 w-64 h-96 cursor-pointer" onclick="this.classList.toggle('flipped'); document.getElementById('reveal-btn').classList.remove('opacity-0', 'pointer-events-none');">
+                        <div class="relative w-full h-full text-center transition-transform duration-700 transform-style-3d shadow-2xl rounded-xl">
+                            
+                            <div class="absolute w-full h-full bg-white border-2 border-amber-600/30 rounded-xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]">
+                                <div class="text-amber-800 text-sm tracking-widest uppercase mb-2 font-serif">Archetype</div>
+                                <h3 class="text-3xl font-bold text-stone-900 font-serif mb-1">${state.data.card.en}</h3>
+                                <h4 class="text-xl text-stone-600 font-serif mb-6">${state.data.card.cn}</h4>
+                                <div class="w-10 h-0.5 bg-amber-600 mb-6"></div>
+                                <p class="text-stone-800 font-serif italic leading-relaxed">"${state.data.card.msg}"</p>
+                                <div class="absolute bottom-4 text-[10px] text-stone-400">2026 Strategic Theme</div>
+                            </div>
+
+                            <div class="absolute w-full h-full bg-stone-800 rounded-xl backface-hidden flex items-center justify-center border-4 border-stone-700">
+                                <div class="border-2 border-amber-600/50 w-[90%] h-[90%] rounded-lg flex items-center justify-center">
+                                    <i class="fa-solid fa-compass text-6xl text-amber-600/80"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="reveal-btn" class="mt-10 opacity-0 pointer-events-none transition-opacity duration-500 text-stone-500 text-sm text-center">
+                        <p class="mb-2">已獲得戰略關鍵字</p>
+                        <p class="text-xs text-stone-400">點擊右下角按鈕生成報告</p>
+                    </div>
+
+                    <style>
+                        .flipped .transform-style-3d {
+                            transform: rotateY(180deg);
+                        }
+                    </style>
+                `;
+
+                return div;
+            }
+
+            function renderStep7() {
+                const prompt = generatePrompt();
+                const div = document.createElement('div');
+                div.className = 'slide-in-right h-full flex flex-col';
+                div.innerHTML = `
+                    <h2 class="text-2xl font-bold text-stone-800 text-center mb-4">你的年度戰略書已就緒</h2>
+                    <div class="flex-1 relative bg-stone-900 rounded-lg p-4 overflow-hidden group">
+                        <textarea id="final-prompt" readonly 
+                            class="w-full h-full bg-transparent text-stone-300 font-mono text-xs md:text-sm resize-none focus:outline-none custom-scrollbar">${prompt}</textarea>
+                        
+                        <button id="btn-copy" class="absolute top-4 right-4 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded shadow flex items-center transition-all">
+                            <i class="fa-regular fa-copy mr-2"></i> 複製指令
+                        </button>
+                    </div>
+                    <p class="text-center text-xs text-stone-400 mt-4">請複製上方指令，發送給 ChatGPT 或 Claude。</p>
+                `;
+                
+                setTimeout(() => {
+                    const btn = div.querySelector('#btn-copy');
+                    btn.addEventListener('click', () => {
+                        const txt = div.querySelector('#final-prompt');
+                        txt.select();
+                        navigator.clipboard.writeText(txt.value).then(() => {
+                            btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i> 已複製';
+                            btn.classList.replace('bg-amber-600', 'bg-green-600');
+                            setTimeout(() => {
+                                btn.innerHTML = '<i class="fa-regular fa-copy mr-2"></i> 複製指令';
+                                btn.classList.replace('bg-green-600', 'bg-amber-600');
+                            }, 2000);
+                        });
+                    });
+                }, 0);
+                return div;
+            }
+
+            // --- Helpers ---
+            
+            function initRadarChart() {
+                const ctx = document.getElementById('radarChart');
+                if(!ctx) return;
+                
+                // Destroy old instance if exists to prevent glitch
+                if(radarChart instanceof Chart) {
+                    radarChart.destroy();
+                }
+
+                radarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['事業成就', '身心健康', '人際關係', '財務豐盛', '自我實現'],
+                        datasets: [{
+                            label: '2025 能量',
+                            data: [...state.data.scores],
+                            backgroundColor: 'rgba(217, 119, 6, 0.2)', // amber-600
+                            borderColor: '#d97706',
+                            pointBackgroundColor: '#d97706',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                min: 0,
+                                max: 10,
+                                ticks: { display: false },
+                                pointLabels: {
+                                    font: { family: "'Noto Serif TC', serif", size: 12 },
+                                    color: '#57534e'
+                                }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            function updateRadarChart() {
+                if(radarChart) {
+                    radarChart.data.datasets[0].data = [...state.data.scores];
+                    radarChart.update();
+                }
+            }
+
+            function saveCurrentStepData() {
+                // Input listeners handle most data, this is just a safety hook
+            }
+
+            function generatePrompt() {
+                return `# Role
+你是一位溫暖、富有洞見的人生戰略顧問與年度覆盤專家。
+
+# Task
+請根據我填寫的 **【2025 年度覆盤】** 以及我抽到的 **【2026 戰略關鍵字：${state.data.card.cn}】**，為我撰寫一份深度年度總結報告。
+請使用 **繁體中文**，語氣專業、清晰且激勵人心。
+
+---
+# Context (使用者數據)
+**1. 能量定調：**
+* 年度關鍵字：${state.data.keyword}
+* 五維度評分：事業(${state.data.scores[0]}) / 身心(${state.data.scores[1]}) / 關係(${state.data.scores[2]}) / 財務(${state.data.scores[3]}) / 自我(${state.data.scores[4]})
+
+**2. 2025 四季回放：**
+* Q1: ${state.data.q1}
+* Q2: ${state.data.q2}
+* Q3: ${state.data.q3}
+* Q4: ${state.data.q4}
+
+**3. 人生角色檢視：**
+* 角色1 (${state.data.roles[0].name}): ${state.data.roles[0].review}
+* 角色2 (${state.data.roles[1].name}): ${state.data.roles[1].review}
+* 角色3 (${state.data.roles[2].name}): ${state.data.roles[2].review}
+
+**4. 深度盤點：**
+* 關鍵數據: ${state.data.metrics}
+* 高光時刻: ${state.data.highlights}
+* 隱形資產: ${state.data.assets}
+
+**5. 未來願景：**
+${state.data.vision}
+
+**6. ✨ 2026 戰略關鍵字：**
+* **${state.data.card.cn} (${state.data.card.en})**
+* 行動準則：${state.data.card.msg}
+
+---
+# Output Structure (請依照此架構產出)
+
+## 1. 🦋 2025 年度總結
+* **年度定調：** 結合關鍵字與五維度評分，分析今年的整體基調。
+
+## 2. 🏆 高光與數據分析
+* **成就是如何發生的：** 分析高光時刻與數據背後的關鍵行動。
+* **角色成長：** 針對不同角色(${state.data.roles[0].name}...)的轉變進行點評。
+
+## 3. 🧩 隱形資產盤點
+* **內在累積：** 分析那些無法被量化，但對未來至關重要的經驗與心態。
+
+## 4. 💌 2026 戰略規劃
+* **給未來的信：** 結合願景寫一段話。
+* **關鍵字戰略解讀：** 請針對我抽到的「${state.data.card.cn}」，結合我的願景，提供 **3 個具體的行動建議**。告訴我明年若要實踐這個關鍵字，我應該專注什麼？或避免什麼？
+
+## 5. 🎨 AI 視覺化指令 (Bonus)
+請生成兩組 **英文** Image Prompts，並附上中文設計思路。
+**重要提示：** 請指示繪圖 AI 盡量使用圖像、圖標和抽象元素來表達資訊，**避免在圖中渲染複雜的文字或數據標籤**，以免產生亂碼。
+
+* **[Prompt 1: 2025 年度全景資訊圖表]**: 
+    * 設計思路：請設計一張雜誌風格的資訊圖表，用視覺化的方式呈現 Q1-Q4 的流動、關鍵數據的亮點，以及雷達圖的能量分佈。重點是整體的視覺美感與結構。
+    * 風格：Editorial layout, clean data visualization using icons and abstract shapes, minimal text, warm earth tones.
+* **[Prompt 2: 2026 願景拼貼]**: 
+    * 設計思路：將我的願景畫面與「${state.data.card.en}」的象徵元素結合，設計一張激勵人心的電腦桌布。
+    * 風格：Desktop wallpaper, mood board style, aesthetic and inspiring, photorealistic elements.`;
+            }
+
+        }); // End of DOMContentLoaded
+    </script>
 </body>
 </html>

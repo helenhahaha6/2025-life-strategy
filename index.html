@@ -271,29 +271,33 @@
             function renderStep3() {
                 const div = document.createElement('div');
                 div.className = 'slide-in-right space-y-6';
+                
+                // 統一的引導提問
+                const commonReviewPlaceholder = "在這個角色裡，最有成就感的時刻是什麼？遇到的最大挑戰又是什麼？";
+
                 div.innerHTML = `
                     <h2 class="text-2xl font-bold text-stone-800 text-center mb-2">多重宇宙的你</h2>
                     <p class="text-center text-stone-500 text-sm mb-6 italic">我們同時扮演著不同角色，請與它們對話。</p>
-                    <div class="space-y-6 h-[400px] overflow-y-auto pr-2">
-                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors">
-                            <div class="absolute -top-3 left-4 bg-amber-600 text-white text-xs px-2 py-0.5 rounded font-serif">主要角色</div>
-                            <input type="text" id="r1-name" value="${state.data.roles[0].name}" placeholder="角色名稱 (如: 專案經理)" 
-                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 placeholder-stone-400">
-                            <textarea id="r1-review" rows="3" placeholder="最有成就感的是什麼？最消耗你的又是什麼？"
-                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400">${state.data.roles[0].review}</textarea>
+                    <div class="space-y-6 h-[400px] overflow-y-auto pr-2 pb-4">
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors mt-2">
+                            <div class="absolute -top-3 left-4 bg-amber-600 text-white text-xs px-2 py-0.5 rounded font-serif shadow-sm">主要角色</div>
+                            <input type="text" id="r1-name" value="${state.data.roles[0].name}" placeholder="輸入角色名稱" 
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 mt-2 placeholder-stone-400">
+                            <textarea id="r1-review" rows="3" placeholder="${commonReviewPlaceholder}"
+                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400 leading-relaxed">${state.data.roles[0].review}</textarea>
                         </div>
-                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors">
-                            <div class="absolute -top-3 left-4 bg-stone-500 text-white text-xs px-2 py-0.5 rounded font-serif">次要角色</div>
-                            <input type="text" id="r2-name" value="${state.data.roles[1].name}" placeholder="角色名稱 (如: 伴侶/女兒)" 
-                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 placeholder-stone-400">
-                            <textarea id="r2-review" rows="3" placeholder="這個角色帶給你什麼成長？學到了什麼課題？"
-                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400">${state.data.roles[1].review}</textarea>
+                         <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors mt-4">
+                            <div class="absolute -top-3 left-4 bg-stone-500 text-white text-xs px-2 py-0.5 rounded font-serif shadow-sm">次要角色</div>
+                            <input type="text" id="r2-name" value="${state.data.roles[1].name}" placeholder="輸入角色名稱" 
+                                class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 mt-2 placeholder-stone-400">
+                            <textarea id="r2-review" rows="3" placeholder="${commonReviewPlaceholder}"
+                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400 leading-relaxed">${state.data.roles[1].review}</textarea>
                         </div>
-                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors">
-                            <input type="text" id="r3-name" value="${state.data.roles[2].name}" placeholder="其他角色 (選填)" 
+                        <div class="bg-stone-50 p-4 rounded-lg border border-stone-100 relative group hover:border-amber-200 transition-colors mt-2">
+                            <input type="text" id="r3-name" value="${state.data.roles[2].name}" placeholder="輸入其他角色 (選填)" 
                                 class="w-full bg-transparent font-bold text-lg text-stone-800 border-b border-stone-200 focus:border-amber-600 focus:outline-none mb-3 placeholder-stone-400">
-                            <textarea id="r3-review" rows="2" placeholder="簡短回顧..."
-                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400">${state.data.roles[2].review}</textarea>
+                            <textarea id="r3-review" rows="2" placeholder="${commonReviewPlaceholder}"
+                                class="w-full bg-transparent resize-none text-sm text-stone-600 focus:outline-none placeholder-stone-400 leading-relaxed">${state.data.roles[2].review}</textarea>
                         </div>
                     </div>
                 `;
@@ -316,20 +320,20 @@
                         
                         <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-chart-line w-6"></i> 關鍵數據 (Metrics)</label>
-                            <textarea id="input-metrics" rows="3" placeholder="具體數字證明你的努力 (如: 專案數、營收、粉絲增長...)"
-                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400">${state.data.metrics}</textarea>
+                            <textarea id="input-metrics" rows="3" placeholder="有哪些具體的數字可以證明你的努力？（例如：專案數量、營收金額、粉絲增長...）"
+                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.metrics}</textarea>
                         </div>
 
                         <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-trophy w-6"></i> 高光時刻 (Highlights)</label>
-                            <textarea id="input-highlights" rows="3" placeholder="今年讓你覺得『我真棒』的三個瞬間..."
-                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400">${state.data.highlights}</textarea>
+                            <textarea id="input-highlights" rows="3" placeholder="今年讓你覺得『我真棒』的三個瞬間是什麼？（不一定要很大，微小的勝利也算）"
+                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.highlights}</textarea>
                         </div>
 
                          <div class="space-y-2">
                             <label class="flex items-center text-amber-800 font-bold font-serif"><i class="fa-solid fa-gem w-6"></i> 隱形資產 (Assets)</label>
-                            <textarea id="input-assets" rows="3" placeholder="獲得了什麼帶得走的東西？(技能、習慣、心態...)"
-                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400">${state.data.assets}</textarea>
+                            <textarea id="input-assets" rows="3" placeholder="今年你獲得了什麼『帶得走』的東西？（例如：新技能、好習慣、人脈、或是心態的轉變...）"
+                                class="w-full p-3 bg-stone-50 rounded border border-stone-100 focus:border-amber-300 focus:outline-none text-sm text-stone-700 placeholder-stone-400 leading-relaxed">${state.data.assets}</textarea>
                         </div>
                     </div>
                 `;
@@ -349,7 +353,7 @@
                     <h2 class="text-2xl font-bold text-stone-800 text-center mb-2">凝視 2026</h2>
                     <p class="text-center text-stone-500 text-sm mb-6 italic">想像現在是 2026 年底...</p>
                     <div class="relative">
-                        <textarea id="input-vision" rows="12" placeholder="你身在何處？空氣中聞起來像什麼？你完成了哪些事？身邊有誰？請描述那個具體的畫面。"
+                        <textarea id="input-vision" rows="12" placeholder="閉上眼睛，想像現在是 2026 年 12 月 31 日。你身在何處？空氣中聞起來像什麼？你完成了哪些事？身邊有誰？請描述那個具體的畫面。"
                             class="w-full p-6 bg-stone-50 rounded-lg border border-stone-100 focus:border-amber-300 focus:outline-none text-base text-stone-700 leading-loose placeholder-stone-400 font-serif">${state.data.vision}</textarea>
                         <i class="fa-solid fa-quote-right absolute bottom-4 right-4 text-4xl text-stone-200 pointer-events-none"></i>
                     </div>
